@@ -32,31 +32,37 @@ forecast_out = int(math.ceil(0.01 * len(df))) #days ahead
 #add a new column
 df['label'] = df[forecast_col].shift(-forecast_out)
 
-df.dropna(inplace=True)
+
+
+
 
 #define features as X and labels and y
 X = np.array(df.drop(['label'], 1)) #remove lable to remain only features
-y = np.array(df['label']) 
+
 
 #Scaling data with preprocessing to reduce errors (-1,1) 
 X = preprocessing.scale(X)
 
-# X = X[:-forecast_out+1] #forcast the stock prices for one day ahead
+X = X[:-forecast_out+1] #forcast the stock prices for one day ahead
 
-# df.dropna(inplace=True)
+df.dropna(inplace=True)
 y=np.array(df['label'])
 
 X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.2) #test 20% of the data
 
 
 # Using a classifer
-classifier = LinearRegression() # 97%
+classifier = LinearRegression(n_jobs=-1) # 97%
 # classifier = svm.SVR() #81%
 
 classifier.fit(X_train, y_train) 	#Train
 confidence = classifier.score(X_test, y_test) 	#Test
 
 print(confidence)
+
+# forecast_set = clf.predict(X_lately)
+
+# print(forecast_set, confidence, forecast_out)
 
 
 
