@@ -7,6 +7,12 @@ import numpy as np
 from sklearn import preprocessing, cross_validation, svm
 from sklearn.linear_model import LinearRegression
 
+import matplotlib.pyplot as plt
+from matplotlib import style
+import datetime
+
+style.use('ggplot') #to display
+
 
 
 df = quandl.get('WIKI/GOOGL')
@@ -21,7 +27,7 @@ df['PCT_change'] = (df['Adj. Close'] - df['Adj. Open']) / df['Adj. Open'] * 100.
 df = df[['Adj. Close', 'HL_PCT', 'PCT_change', 'Adj. Volume']]
 
 
-print(df.head())
+# print(df.head())
 
 
 forecast_col = 'Adj. Close'
@@ -58,11 +64,28 @@ classifier = LinearRegression(n_jobs=-1) # 97%
 classifier.fit(X_train, y_train) 	#Train
 confidence = classifier.score(X_test, y_test) 	#Test
 
-print(confidence)
+forecast_set = classifer.predict(X_lately)
+df['Forecast'] = np.nan 
 
-# forecast_set = clf.predict(X_lately)
+last_date = df.iloc[-1].name
+last_unix = last_date.timestamp()
+one_day = 86400
 
-# print(forecast_set, confidence, forecast_out)
+next_unix = last_unix + one_day
+
+for i in forecast_set:
+    next_date = datetime.datetime.fromtimestamp(next_unix)
+    next_unix += 86400
+    df.loc[next_date] = [np.nan for _ in range(len(df.columns)-1)]+[i]
+
+df['Adj. Close'].plot()
+df['Forecast'].plot()
+plt.legend(loc=4)
+plt.xlabel('Date')
+plt.ylabel('Price')
+plt.show()
+
+
 
 
 
